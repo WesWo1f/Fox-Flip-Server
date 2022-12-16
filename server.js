@@ -20,23 +20,31 @@ const sequelize = new Sequelize(`postgres://vbvuvlwb:${process.env.dataBaseKey}@
 
 app.post('/create_new_user', async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds) 
-    try {
-    await User.create({
-        userID: req.body.userID, 
+    const userAlreadyExists = await User.findOne({
+      where: {
         userName: req.body.userName,
-        password: hashedPassword,
-        email: req.body.email,
-        avatar: req.body.avatar,
-        ranking: req.body.ranking,
-        amountWon: req.body.amountWon
-    })
-    console.log('create new user ran!')
-    } catch (error) {
-    console.log("no user to be logged in...")
-    console.error(error);
     }
+    })
+    if(userAlreadyExists){
+      console.log("that username is already been taken")
+      //TODO add a message to get sent to front end to say username is taken
+    }else{
+      try {
+        await User.create({
+            userID: req.body.userID, 
+            userName: req.body.userName,
+            password: hashedPassword,
+            email: req.body.email,
+            avatar: req.body.avatar,
+            ranking: req.body.ranking,
+            amountWon: req.body.amountWon
+        })
+        console.log('create new user ran!')
+        } catch (error) {
+        console.log("no user to be logged in...")
+        console.error(error);
+        }}
   }) 
-
 
 app.post('/login', async (req, res) => {
 
@@ -63,8 +71,6 @@ app.post('/login', async (req, res) => {
     }
     //res.redirect('/')
 })
-  
-  
   
 app.delete('/userdel/:userName',async function(req, response) {
     const UserUsers = await User.findOne({      
