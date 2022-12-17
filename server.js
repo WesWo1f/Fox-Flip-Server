@@ -27,7 +27,6 @@ app.post('/create_new_user', async (req, res) => {
     })
     if(userAlreadyExists){
       console.log("that username is already been taken")
-      //TODO add a message to get sent to front end to say username is taken
     }else{
       try {
         await User.create({
@@ -46,30 +45,41 @@ app.post('/create_new_user', async (req, res) => {
         }}
   }) 
 
-app.post('/login', async (req, res) => {
-
+app.post('/Login', async (req, res) => {
     let loggedUser = await User.findOne({
       where: {
         userName: req.body.userName,
     }
     })
-    
-    try {
-      if (await bcrypt.compare(req.body.password, loggedUser.password)) {
-        console.log('login test ran!')
-        console.log("password is good")
-        res.send("password is good")
+    if(loggedUser != null){
+      try {
+        if (await bcrypt.compare(req.body.password, loggedUser.password)) {
+          console.log('/Login ran and Password is Good.')
+          res.json({
+            serverStatus: "Server Status is good",
+            serverMsg: "Login successful",
+            serverCode: "GOOD"
+          })
+        }
+        else{
+          res.json({
+            serverStatus: "Server Status is good",
+            serverMsg: "Login Failed. User name or password incorrect",
+            serverCode: "BAD"
+          })
+        }
+      } catch (error) {
+        console.log("no user to be logged in...")
+        console.error(error);
       }
-      else{
-        console.log('login test ran!')
-        console.log(`Incorrect password userName:${loggedUser} req.body.password:${req.body.password} loggedUser.password ${loggedUser.password} `)
-        res.send("Incorrect password")
-      }
-    } catch (error) {
-      console.log("no user to be logged in...")
-      console.error(error);
+    }else{
+      res.json({
+        serverStatus: "Server Status is good",
+        serverMsg: "Login Failed. No User found",
+        serverCode: "BAD"
+      })
     }
-    //res.redirect('/')
+
 })
   
 app.delete('/userdel/:userName',async function(req, response) {
