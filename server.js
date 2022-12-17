@@ -27,7 +27,6 @@ app.post('/create_new_user', async (req, res) => {
     })
     if(userAlreadyExists){
       console.log("that username is already been taken")
-      //TODO add a message to get sent to front end to say username is taken
     }else{
       try {
         await User.create({
